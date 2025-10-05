@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  image     String?
+  isAdmin   Boolean   @default(false)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  name            String
+  description     String
+  price           Int            // integer only (no decimals)
+  status          Status         @default(unreviewed)
+  category        Category
+  condition       Condition
+  images          ProductImage[]
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+
+  // Required  one-to-one relation to LocationInfo
+  location        LocationInfo?
+  locationCoords  String
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model LocationInfo {
+  id             String   @id @default(cuid())
+  amenity        String?
+  road           String?
+  city           String
+  county         String?
+  state_district String?
+  state          String
+  iso3166_lvl4   String?
+  postcode       String
+  country        String
+  country_code   String
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   String   @unique
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String   // store the file path / cloud URL
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+}
+
+
+enum Category {
+  ELECTRONICS
+  FASHION
+  FURNITURE
+  BOOKS
+  SPORTS
+  MUSIC
+  HOME_GARDEN
+  TOYS
+  AUTOMOTIVE
+  ART_CRAFTS
+  OTHER
+}
+
+enum Condition {
+  NEW         // Unused, sealed pack
+  LIKE_NEW    // Hardly used, almost new
+  USED        // Normal second-hand
+  REPAIRED    // Item was broken/damaged earlier but fixed
+}
+
+enum Status {
+  unreviewed  // waiting for admin approval
+  allowed     // allowed by admin
+  blocked     // blocked by admin
+  onhold      // put on hold by admin
+}

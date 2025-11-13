@@ -381,7 +381,7 @@ const UploadProduct: React.FC = () => {
                       type="text"
                       name="location"
                       disabled
-                      value={locationInfo ? locationInfo.amenity + ", " + locationInfo.city : "Fetching Location"}
+                      value={locationInfo ? locationInfo.city + ", " +locationInfo.state + ", " + locationInfo.postcode : "Fetching Location"}
                       required
                       className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-800 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-400 transition-all"
                       placeholder="Enter your location"

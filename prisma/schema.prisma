@@ -17,52 +17,93 @@ model User {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  conversationsOut ChatConversation[] @relation("Sender")
+  conversationsIn  ChatConversation[] @relation("Receiver")
+
+  sentMessages Message[] @relation("SentMessages")
 }
 
 model Product {
-  id              String         @id @default(cuid())
-  name            String
-  description     String
-  price           Int            // integer only (no decimals)
-  status          Status         @default(unreviewed)
-  category        Category
-  condition       Condition
-  images          ProductImage[]
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
+  id          String         @id @default(cuid())
+  name        String
+  description String
+  price       Int // integer only (no decimals)
+  status      Status         @default(unreviewed)
+  category    Category
+  condition   Condition
+  images      ProductImage[]
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
 
   // Required  one-to-one relation to LocationInfo
-  location        LocationInfo?
-  locationCoords  String
-  
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  location       LocationInfo?
+  locationCoords String
+
+  // Conversations
+  conversations ChatConversation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model LocationInfo {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   amenity        String?
   road           String?
   city           String
   county         String?
-  state_district String?
+  state_district String
   state          String
   iso3166_lvl4   String?
   postcode       String
   country        String
   country_code   String
 
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId   String   @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique
 }
 
 model ProductImage {
-  id        String   @id @default(cuid())
-  url       String   // store the file path / cloud URL
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  url       String // store the file path / cloud URL
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 
+model ChatConversation {
+  id                Int           @id @default(autoincrement())
+  productId         String
+  product           Product       @relation(fields: [productId], references: [id])
+
+  senderId          String
+  receiverId        String
+
+  sender            User          @relation("Sender", fields: [senderId], references: [id])
+  receiver          User          @relation("Receiver", fields: [receiverId], references: [id])
+
+  messages          Message[]     @relation("Messages")
+  @@unique([productId, senderId, receiverId])
+}
+
+model Message {
+  id                Int              @id @default(autoincrement())
+  content           String
+  status            MessageStatus    @default(SENT)
+  conversationId    Int
+  conversation      ChatConversation @relation("Messages", fields: [conversationId], references: [id])
+
+  senderId          String
+  sender            User             @relation("SentMessages", fields: [senderId], references: [id])
+
+  createdAt         DateTime         @default(now())
+}
+
+enum MessageStatus {
+  SENT
+  DELIEVERED
+  SEEN
+}
 
 enum Category {
   ELECTRONICS
@@ -79,15 +120,15 @@ enum Category {
 }
 
 enum Condition {
-  NEW         // Unused, sealed pack
-  LIKE_NEW    // Hardly used, almost new
-  USED        // Normal second-hand
-  REPAIRED    // Item was broken/damaged earlier but fixed
+  NEW // Unused, sealed pack
+  LIKE_NEW // Hardly used, almost new
+  USED // Normal second-hand
+  REPAIRED // Item was broken/damaged earlier but fixed
 }
 
 enum Status {
-  unreviewed  // waiting for admin approval
-  allowed     // allowed by admin
-  blocked     // blocked by admin
-  onhold      // put on hold by admin
+  unreviewed // waiting for admin approval
+  allowed // allowed by admin
+  blocked // blocked by admin
+  onhold // put on hold by admin
 }

@@ -41,9 +41,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ stat
         where: {
             status: status as Status
         },
-        orderBy: {
-            createdAt: 'asc'
-        },
         include: {
             images: true,
             user: {
@@ -54,13 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ stat
                     image: true,   
                 }
             },
-            location: {
-                select: {
-                    state: true,
-                    city: true,
-                    postcode: true
-                }
-            }
+            location: true
         }
     })
     return NextResponse.json({ success: true, products: products });

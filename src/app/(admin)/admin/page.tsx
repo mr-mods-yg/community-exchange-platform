@@ -1,8 +1,10 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { MapPin, Search, Star, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal } from 'lucide-react';
+import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import axios from 'axios';
 import { LocationInfo, User } from '@/generated/prisma';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Image {
     id: string;
@@ -32,6 +34,8 @@ const Dashboard: React.FC = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [hasCheckedAdmin, setHasCheckedAdmin] = useState(false);
     const [products, setProducts] = useState<Product[]>();
+    // 0 - doing nothing , 1 - setting allowed, 2 - setting blocked, 3 - setting onhold
+    const [updatingStatus, setUpdatingStatus] = useState(0);
 
     useEffect(() => {
         axios.get("/api/check/admin").then((res) => {
@@ -42,15 +46,26 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         if (!isAdmin) return;
-        axios.get("api/admin/products/fetch/unreviewed").then((res) => {
+        axios.get(`api/admin/products/fetch/${statusFilter}`).then((res) => {
             if (res.data.success) setProducts(res.data.products);
         })
-    }, [isAdmin])
+    }, [isAdmin,statusFilter])
+
 
     if (hasCheckedAdmin && !isAdmin) {
         return <div>You do not have the required permission</div>
     } else if (!isAdmin) {
         return <div>Checking your account..</div>
+    }
+    const updateStatus = async (status: string, productId: string) => {
+        const res = await axios.post("/api/admin/product/update/" + productId, {
+            status
+        });
+        if (res.data.success) {
+            toast.success("Product status updated!");
+            setUpdatingStatus(0);
+            setProducts(products => products?.filter(p => p.id !== productId));
+        }
     }
     return (
         <div className="min-h-screen bg-black text-white">
@@ -60,9 +75,12 @@ const Dashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                             <Package className="h-8 w-8 text-emerald-400" />
-                            <span className="flex gap-2 text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                                TradeHub <p className='text-red-500'>Admin</p>
-                            </span>
+                            <Link href={"/dashboard"}>
+                                <span className="flex gap-2 text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                                    TradeHub <p className='text-red-500'>Admin</p>
+                                </span>
+                            </Link>
+
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center">
@@ -212,7 +230,7 @@ const Dashboard: React.FC = () => {
 
                                 <div className="flex items-center space-x-2 mb-3">
                                     <MapPin className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm text-gray-300">{product.location.city+", "+product.location.state}</span>
+                                    <span className="text-sm text-gray-300">{product.location.city + ", " + product.location.state}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between mb-3">
@@ -224,11 +242,14 @@ const Dashboard: React.FC = () => {
                                         {product.category}
                                     </span>
                                     <span className='flex gap-2 mt-1'>
-                                        <button className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
-                                            Approve
+                                        <button disabled={updatingStatus === 1} onClick={() => { setUpdatingStatus(1); updateStatus("allowed", product.id) }} className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
+                                            {updatingStatus === 1 ? "Updating" : "Approve"}
                                         </button>
-                                        <button className="bg-red-500 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
-                                            Reject
+                                        <button disabled={updatingStatus === 2} onClick={() => { setUpdatingStatus(2); updateStatus("blocked", product.id) }} className="bg-red-500 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
+                                            {updatingStatus === 2 ? "Updating" : "Reject"}
+                                        </button>
+                                        <button disabled={updatingStatus === 3} onClick={() => { setUpdatingStatus(3); updateStatus("onhold", product.id) }} className="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
+                                            {updatingStatus === 2 ? "Updating" : "Hold"}
                                         </button>
                                     </span>
                                 </div>
@@ -238,11 +259,11 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Load More */}
-                <div className="text-center mt-12">
+                {/* <div className="text-center mt-12">
                     <button className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-emerald-500/20 hover:to-cyan-500/20 border border-gray-700 hover:border-emerald-500/50 px-8 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
                         Load More Products
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>
     );

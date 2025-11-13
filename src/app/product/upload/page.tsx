@@ -46,7 +46,7 @@ const UploadProduct: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationInfo, setLocationInfo] = useState<LocationInfo>();
-
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -142,6 +142,7 @@ const UploadProduct: React.FC = () => {
       toast.error("Please wait for location to be fetched!");
       return;
     }
+    setSubmitting(true);
     try {
       const res = await axios.post("/api/product/upload", {
         ...formData,
@@ -182,6 +183,7 @@ const UploadProduct: React.FC = () => {
       const axiosError = error as AxiosError<{ error: string }>;
       toast.error(axiosError.response?.data?.error || "Something went wrong!");
     }
+    setSubmitting(false);
   };
 
   return (
@@ -381,7 +383,7 @@ const UploadProduct: React.FC = () => {
                       type="text"
                       name="location"
                       disabled
-                      value={locationInfo ? locationInfo.city + ", " +locationInfo.state + ", " + locationInfo.postcode : "Fetching Location"}
+                      value={locationInfo ? locationInfo.city + ", " + locationInfo.state + ", " + locationInfo.postcode : "Fetching Location"}
                       required
                       className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-800 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-emerald-400 transition-all"
                       placeholder="Enter your location"
@@ -411,9 +413,10 @@ const UploadProduct: React.FC = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 hover:from-emerald-600 hover:via-cyan-600 hover:to-purple-600 px-12 py-4 rounded-xl text-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
+                disabled={submitting}
+                className={`bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 ${!submitting && "hover:from-emerald-600 hover:via-cyan-600 hover:to-purple-600"} px-12 py-4 rounded-xl text-lg font-medium transition-all transform ${!submitting && "hover:scale-105 shadow-lg hover:shadow-emerald-500/25"}`}
               >
-                List Product
+                {submitting ? "Listing Product..." : "List Product"}
               </button>
             </div>
           </form>

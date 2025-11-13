@@ -1,11 +1,19 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal, Plus } from 'lucide-react';
+import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal, Plus, LogIn, UserRoundPlus, LogOut, UserRound } from 'lucide-react';
 import axios from 'axios';
 import Link from 'next/link';
 import { LocationInfo } from '@/types/locationInfo';
 import { User } from '@/generated/prisma';
-
+import { signOut, useSession } from 'next-auth/react';
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 interface Image {
   id: string;
   url: string;
@@ -28,12 +36,16 @@ interface Product {
 }
 
 const Dashboard: React.FC = () => {
+  const session = useSession();
+  const userId = session.data?.user.id;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [locationFilter, setLocationFilter] = useState<'city' | 'state_district' | 'state'>('city');
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationInfo, setLocationInfo] = useState<LocationInfo>();
-  const [products, setProducts] = useState<Product[]>();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -65,6 +77,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!locationInfo) return;
+    setLoadingProducts(true);
+    console.log("loading start");
     if (locationFilter == "city") {
       axios.get("/api/products/filter?city=" + locationInfo.city).then((res) => setProducts(res.data))
     }
@@ -75,7 +89,10 @@ const Dashboard: React.FC = () => {
       axios.get("/api/products/filter?state=" + locationInfo.state).then((res) => setProducts(res.data))
     }
 
+    setLoadingProducts(false);
+
   }, [locationInfo, locationFilter])
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -103,9 +120,61 @@ const Dashboard: React.FC = () => {
                 <Plus className="h-4 w-4" />
                 <span>List Product</span>
               </Link>
-              <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium">JD</span>
-              </div>
+
+              <Menubar asChild>
+                <MenubarMenu>
+                  <MenubarTrigger className='p-0 m-0 bg-transparent border-0 shadow-none 
+        hover:bg-transparent 
+        focus:bg-transparent 
+        focus-visible:bg-transparent 
+        active:bg-transparent 
+        data-[state=open]:bg-transparent'>
+
+                    {session.data?.user?.image ? (
+                      <img
+                        src={session.data.user.image}
+                        className="size-10 rounded-full border border-neutral-300 object-cover hover:border-2 hover:border-white active:border-2"
+                        alt="User Avatar"
+                      />
+                    ) : (
+                      <div className="size-10 rounded-full border border-neutral-300 bg-neutral-200 flex items-center justify-center text-sm font-bold">
+                        {session.data?.user?.name?.[0]}
+                      </div>
+                    )}
+
+                  </MenubarTrigger>
+
+                  <MenubarContent className='bg-transparent/50 text-white backdrop-blur-2xl '>
+                    {session && session.status === "authenticated" ? (
+                      <>
+                        {/* <MenubarItem asChild>
+                          <Link className={"size-full"} href={"/profile"}>
+                            <UserRound />
+                            My Profile
+                          </Link>
+                        </MenubarItem>
+                        <MenubarSeparator /> */}
+                        <MenubarItem
+                          variant={"destructive"}
+                          onClick={() => signOut()}
+                        >
+                          <LogOut /> Logout
+                        </MenubarItem>
+                      </>
+                    ) : (
+                      <>
+                        <MenubarItem asChild>
+                          <Link className={"size-full"} href={"/login"}>
+                            <LogIn />
+                            Login
+                          </Link>
+                        </MenubarItem>
+
+                      </>
+                    )}
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             </div>
           </div>
         </div>
@@ -206,6 +275,8 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        <div className='px-2'>{loadingProducts ? "Loading Products..." : products.length === 0 ? "No Products found!" : ""}</div>
+
         {/* Products Grid */}
         <div className={`grid gap-6 ${viewMode === 'grid'
           ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
@@ -255,8 +326,8 @@ const Dashboard: React.FC = () => {
                   <span className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-2 py-1 rounded-full text-purple-300">
                     {product.category}
                   </span>
-                  <Link href={`/chat?product=${product.id}`} className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
-                    Contact Seller
+                  <Link href={product.userId == userId ? "#" : `/chat?product=${product.id}`} className={product.userId == userId ? "bg-gray-700 px-4 py-2 rounded-lg text-sm font-medium" : "bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105"}>
+                    {product.userId == userId ? "Listed by you" : "Contact Seller"}
                   </Link>
                 </div>
               </div>

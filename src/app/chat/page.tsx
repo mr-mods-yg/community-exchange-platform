@@ -55,10 +55,17 @@ type ChatConversation = {
         isAdmin: boolean;
         createdAt: string;
         updatedAt: string;
-    }
+    },
+    messages: ChatConvoMessage[]
 };
 
-
+type ChatConvoMessage = {
+    id: number;
+    content: string;
+    conversationId: number;
+    senderId: string;
+    createdAt: string;
+}
 
 type ProductResponse = {
     id: string;
@@ -320,7 +327,7 @@ function Chat() {
     return (
         <div className="min-h-screen bg-black text-white flex">
             {/* Sidebar - Chat List */}
-            <div className="w-80 bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm border-r border-gray-800/50 flex flex-col">
+            <div className={`${currentChat && "hidden"} w-full md:w-80 bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm border-r border-gray-800/50 md:flex flex-col`}>
                 {/* Header */}
                 <div className="p-4 border-b border-gray-800/50">
                     <div className="flex items-center justify-between mb-4">
@@ -376,7 +383,7 @@ function Chat() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h3 className="font-semibold text-white truncate">{chat.senderId == userId ? chat.receiver.name : chat.sender.name}</h3>
-                                        {messages.length > 0 ? <span className="text-xs text-gray-400">{format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}</span> : <span></span>}
+                                        {messages.length > 0 ? <span className="text-xs text-gray-400">{format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}</span> : <span className="text-xs text-gray-400">{format(new Date(chat.messages[0].createdAt), 'dd MMM yyyy, hh:mm a')}</span>}
                                     </div>
 
                                     <div className="flex items-center space-x-2 mb-1">
@@ -389,9 +396,9 @@ function Chat() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        {messages.length > 0 ? <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p> : <p></p>}
+                                        {messages.length > 0 ? <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p> : <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
                                         {/* <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                                            N/A
+                                            Unread
                                         </span> */}
                                         {/* {chat.unreadCount > 0 && (
                                             <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
@@ -405,25 +412,30 @@ function Chat() {
                     ))}
                 </div>
             </div>
+            { }
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col">
+            <div className={currentChat ? "flex-1 flex flex-col" : "hidden flex-1 md:flex flex-col"}>
                 {currentChat ? (
                     <>
                         {/* Chat Header */}
                         <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm border-b border-gray-800/50 p-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
+                                    <div className='flex md:hidden' onClick={() => setSelectedChat(undefined)}>
+                                        <ArrowLeft />
+                                    </div>
                                     <div className="relative">
-                                        {/* <img
-                                            src={currentChat.sellerAvatar}
-                                            alt={currentChat.sellerName}
-                                            className="w-10 h-10 rounded-full object-cover"
+                                        <img
+                                            src={currentChat.senderId == userId ? (currentChat.receiver.image ?? '/default-avatar.png') : (currentChat.sender.image ?? '/default-avatar.png')}
+                                            alt={currentChat.senderId == userId ? currentChat.receiver.name : currentChat.sender.name}
+                                            className="w-12 h-12 rounded-full object-cover"
                                         />
-                                        {currentChat.isOnline && (
+                                        {/* {currentChat.isOnline && (
                                             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
                                         )} */}
                                     </div>
+
                                     <div>
                                         <h3 className="font-semibold text-white">{currentChat.senderId == userId ? currentChat.receiver.name : currentChat.sender.name}</h3>
                                         <div className="flex items-center space-x-2">

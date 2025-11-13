@@ -46,6 +46,12 @@ export async function GET() {
                         image: true
                     }
                 },
+                messages: {
+                    take: 1,
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
             }
         })
         return NextResponse.json({ success: true, conversations }, { status: 201 });

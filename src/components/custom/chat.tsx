@@ -383,7 +383,14 @@ function Chat() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h3 className="font-semibold text-white truncate">{chat.senderId == userId ? chat.receiver.name : chat.sender.name}</h3>
-                                        {messages.length > 0 ? <span className="text-xs text-gray-400">{format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}</span> : <span className="text-xs text-gray-400">{format(new Date(chat.messages[0].createdAt), 'dd MMM yyyy, hh:mm a')}</span>}
+                                        {messages.length > 0 ? 
+                                        <span className="text-xs text-gray-400">
+                                            {format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}
+                                            </span> : 
+                                        chat.messages[0] && <span className="text-xs text-gray-400">
+                                            {format(new Date(chat.messages[0].createdAt), 'dd MMM yyyy, hh:mm a')}
+                                            </span>
+                                        }
                                     </div>
 
                                     <div className="flex items-center space-x-2 mb-1">
@@ -396,7 +403,10 @@ function Chat() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        {messages.length > 0 ? <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p> : <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
+                                        {messages.length > 0 ? 
+                                        <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p> 
+                                        : 
+                                        chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
                                         {/* <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                                             Unread
                                         </span> */}

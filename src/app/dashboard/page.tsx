@@ -1,19 +1,19 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal, Plus, LogIn, UserRoundPlus, LogOut, UserRound } from 'lucide-react';
+import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal, Plus, LogIn, LogOut } from 'lucide-react';
 import axios from 'axios';
 import Link from 'next/link';
 import { LocationInfo } from '@/types/locationInfo';
-import { User } from '@/generated/prisma';
 import { signOut, useSession } from 'next-auth/react';
 import {
   Menubar,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { User } from '@/generated/prisma';
+import ProductGrid from '@/components/custom/product-grid';
 interface Image {
   id: string;
   url: string;
@@ -278,62 +278,7 @@ const Dashboard: React.FC = () => {
         <div className='px-2'>{loadingProducts ? "Loading Products..." : products.length === 0 ? "No Products found!" : ""}</div>
 
         {/* Products Grid */}
-        <div className={`grid gap-6 ${viewMode === 'grid'
-          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-          : 'grid-cols-1'
-          }`}>
-          {products?.map((product) => (
-            <div
-              key={product.id}
-              className={`bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm rounded-2xl border border-gray-800/50 hover:border-emerald-500/50 transition-all duration-300 group overflow-hidden ${viewMode === 'list' ? 'flex' : ''
-                }`}
-            >
-              <div className={`relative ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'aspect-square'}`}>
-                <img
-                  src={product.images[0].url}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-
-                <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg">
-                  <span className="text-xs text-emerald-400">{product.condition}</span>
-                </div>
-              </div>
-
-              <div className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-lg text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-emerald-400 group-hover:to-cyan-400 group-hover:bg-clip-text transition-all">
-                    {product.name}
-                  </h3>
-                  <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                    {product.price}
-                  </span>
-                </div>
-
-                <div className="flex items-center space-x-2 mb-3">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-300">{product.location.city + ", " + product.location.state}</span>
-
-                  {/* <span className="text-sm text-gray-300">{product.location}</span>
-                  <span className="text-xs text-gray-500">• {product.distance}</span> */}
-                </div>
-
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-gray-400">by {product.user.name}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-2 py-1 rounded-full text-purple-300">
-                    {product.category}
-                  </span>
-                  <Link href={product.userId == userId ? "#" : `/chat?product=${product.id}`} className={product.userId == userId ? "bg-gray-700 px-4 py-2 rounded-lg text-sm font-medium" : "bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105"}>
-                    {product.userId == userId ? "Listed by you" : "Contact Seller"}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProductGrid products={products} viewMode={viewMode} userId={userId}/>
 
         {/*
         <div className="text-center mt-12">
@@ -345,5 +290,6 @@ const Dashboard: React.FC = () => {
     </div>
   );
 };
+
 
 export default Dashboard;

@@ -204,10 +204,7 @@ export default function ProductPage() {
     );
 }
 
-
-
-
-export function SpinnerLoading() {
+function SpinnerLoading() {
   return (
     <Empty className="w-full">
       <EmptyHeader>

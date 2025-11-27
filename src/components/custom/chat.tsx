@@ -11,12 +11,12 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import Pusher from 'pusher-js';
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
 } from "@/components/ui/empty"
 interface Message {
     id: string;
@@ -107,10 +107,13 @@ function Chat() {
     const [isOnline, setIsOnline] = useState(false);
     const lastSeenRef = React.useRef<number>(Date.now());
 
-    useEffect(() => {
+    const updateChatConversations = () => {
         axios.get("/api/conversation").then((res) => {
             setConversations(res.data.conversations);
         })
+    }
+    useEffect(() => {
+        updateChatConversations()
     }, [])
 
     useEffect(() => {
@@ -119,7 +122,7 @@ function Chat() {
                 setProductInfo(res.data.product);
             })
         }
-    }, [productId])
+    }, [])
 
     useEffect(() => {
         if (productInfo) {
@@ -129,6 +132,7 @@ function Chat() {
             }).then((res) => {
                 if (res.data.success) {
                     console.log(res.data);
+                    updateChatConversations();
                     setSelectedChat(res.data.chatInfo.id);
                 }
             })
@@ -390,12 +394,12 @@ function Chat() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h3 className="font-semibold text-white truncate">{chat.senderId == userId ? chat.receiver.name : chat.sender.name}</h3>
-                                        {messages.length > 0 ? 
-                                        <span className="text-xs text-gray-400">
-                                            {format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}
-                                            </span> : 
-                                        chat.messages[0] && <span className="text-xs text-gray-400">
-                                            {format(new Date(chat.messages[0].createdAt), 'dd MMM yyyy, hh:mm a')}
+                                        {messages.length > 0 ?
+                                            <span className="text-xs text-gray-400">
+                                                {format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}
+                                            </span> :
+                                            chat.messages[0] && <span className="text-xs text-gray-400">
+                                                {format(new Date(chat.messages[0].createdAt), 'dd MMM yyyy, hh:mm a')}
                                             </span>
                                         }
                                     </div>
@@ -410,10 +414,10 @@ function Chat() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        {messages.length > 0 ? 
-                                        <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p> 
-                                        : 
-                                        chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
+                                        {messages.length > 0 ?
+                                            <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p>
+                                            :
+                                            chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
                                         {/* <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                                             Unread
                                         </span> */}
@@ -482,7 +486,7 @@ function Chat() {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {messages.length==0 && <EmptyMessage/>}
+                            {messages.length == 0 && <EmptyMessage />}
                             {messages.map((message) => (
                                 <div
                                     key={message.id}
@@ -563,26 +567,26 @@ function Chat() {
 };
 
 function EmptyMessage() {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon" className='bg-black'>
-          <MessageCircleDashed className='text-white'/>
-        </EmptyMedia>
-        <EmptyTitle>No Messages Yet</EmptyTitle>
-        <EmptyDescription>
-          You haven&apos;t had any conversation yet. <br/>Get started by sending
-          your first message.
-        </EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent>
-        <div className="flex gap-2">
-          
-        </div>
-      </EmptyContent>
-      
-    </Empty>
-  )
+    return (
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia variant="icon" className='bg-black'>
+                    <MessageCircleDashed className='text-white' />
+                </EmptyMedia>
+                <EmptyTitle>No Messages Yet</EmptyTitle>
+                <EmptyDescription>
+                    You haven&apos;t had any conversation yet. <br />Get started by sending
+                    your first message.
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <div className="flex gap-2">
+
+                </div>
+            </EmptyContent>
+
+        </Empty>
+    )
 }
 
 export default Chat;

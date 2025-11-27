@@ -5,6 +5,7 @@ import { LocationInfo } from '@/types/locationInfo';
 import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import useLocation from '@/store/location-store';
 
 enum Condition {
   NEW = "NEW",
@@ -41,13 +42,17 @@ const UploadProduct: React.FC = () => {
       country_code: "",
     }
   });
+  const { location, locationInfo, setLocation, setLocationInfo } = useLocation();
 
   const [images, setImages] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [locationInfo, setLocationInfo] = useState<LocationInfo>();
+
   const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
+    if (location) {
+      return;
+    }
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -55,7 +60,6 @@ const UploadProduct: React.FC = () => {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
           });
-          setFormData((prev) => ({ ...prev, locationCoords: pos.coords.latitude + ";" + pos.coords.longitude }))
         },
         (err) => {
           alert("⚠️ Please allow location access to see products near you.");
@@ -65,17 +69,19 @@ const UploadProduct: React.FC = () => {
     } else {
       console.error("Geolocation not supported");
     }
-  }, []);
+  }, [location, locationInfo, setLocation]);
 
   useEffect(() => {
+    if (locationInfo) {
+      return;
+    }
     if (location) {
       axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${location.lat}&lon=${location.lon}&format=json`)
         .then((res) => {
           setLocationInfo(res.data.address);
-
         })
     }
-  }, [location])
+  }, [location, locationInfo, setLocationInfo]);
 
   useEffect(() => {
     if (locationInfo) setFormData((prev) => ({ ...prev, location: locationInfo }))

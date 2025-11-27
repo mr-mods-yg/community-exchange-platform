@@ -1,19 +1,14 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal, Plus, LogIn, LogOut } from 'lucide-react';
+import { MapPin, Search, Grid3x3 as Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import axios from 'axios';
-import Link from 'next/link';
 import { LocationInfo } from '@/types/locationInfo';
-import { signOut, useSession } from 'next-auth/react';
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
+import { useSession } from 'next-auth/react';
 import { User } from '@/generated/prisma';
 import ProductGrid from '@/components/custom/product-grid';
+import useLocation from '@/store/location-store';
+import Navbar from '@/components/custom/navbar';
+
 interface Image {
   id: string;
   url: string;
@@ -36,18 +31,20 @@ interface Product {
 }
 
 const Dashboard: React.FC = () => {
+  const { location, locationInfo, setLocation, setLocationInfo } = useLocation();
   const session = useSession();
   const userId = session.data?.user.id;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [locationFilter, setLocationFilter] = useState<'city' | 'state_district' | 'state'>('city');
   const [searchQuery, setSearchQuery] = useState('');
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [locationInfo, setLocationInfo] = useState<LocationInfo>();
   const [products, setProducts] = useState<Product[]>([]);
 
   const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
+    if (location) {
+      return;
+    }
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -64,16 +61,19 @@ const Dashboard: React.FC = () => {
     } else {
       console.error("Geolocation not supported");
     }
-  }, []);
+  }, [location, locationInfo, setLocation]);
 
   useEffect(() => {
+    if(locationInfo){
+      return;
+    }
     if (location) {
       axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${location.lat}&lon=${location.lon}&format=json`)
         .then((res) => {
           setLocationInfo(res.data.address);
         })
     }
-  }, [location]);
+  }, [location,locationInfo, setLocationInfo]);
 
   useEffect(() => {
     if (!locationInfo) return;
@@ -96,89 +96,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="bg-black/95 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Package className="h-8 w-8 text-emerald-400" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                TradeHub
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className='hidden md:block'>
-                <div className="flex items-center space-x-2 text-gray-300">
-                  <MapPin className="h-5 w-5 text-emerald-400" />
-                  {locationInfo ? <span>{locationInfo?.city}, {locationInfo?.state}</span> : <span>Fetching Location</span>}
-                </div>
-              </div>
-
-              <Link
-                href={"/product/upload"}
-                className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-lg font-medium transition-all transform hover:scale-105 flex items-center space-x-2"
-              >
-                <Plus className="h-4 w-4" />
-                <span>List Product</span>
-              </Link>
-
-              <Menubar asChild>
-                <MenubarMenu>
-                  <MenubarTrigger className='p-0 m-0 bg-transparent border-0 shadow-none 
-        hover:bg-transparent 
-        focus:bg-transparent 
-        focus-visible:bg-transparent 
-        active:bg-transparent 
-        data-[state=open]:bg-transparent'>
-
-                    {session.data?.user?.image ? (
-                      <img
-                        src={session.data.user.image}
-                        className="size-10 rounded-full border border-neutral-300 object-cover hover:border-2 hover:border-white active:border-2"
-                        alt="User Avatar"
-                      />
-                    ) : (
-                      <div className="size-10 rounded-full border border-neutral-300 bg-neutral-200 flex items-center justify-center text-sm font-bold">
-                        {session.data?.user?.name?.[0]}
-                      </div>
-                    )}
-
-                  </MenubarTrigger>
-
-                  <MenubarContent className='bg-transparent/50 text-white backdrop-blur-2xl '>
-                    {session && session.status === "authenticated" ? (
-                      <>
-                        {/* <MenubarItem asChild>
-                          <Link className={"size-full"} href={"/profile"}>
-                            <UserRound />
-                            My Profile
-                          </Link>
-                        </MenubarItem>
-                        <MenubarSeparator /> */}
-                        <MenubarItem
-                          variant={"destructive"}
-                          onClick={() => signOut()}
-                        >
-                          <LogOut /> Logout
-                        </MenubarItem>
-                      </>
-                    ) : (
-                      <>
-                        <MenubarItem asChild>
-                          <Link className={"size-full"} href={"/login"}>
-                            <LogIn />
-                            Login
-                          </Link>
-                        </MenubarItem>
-
-                      </>
-                    )}
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar/>
 
       <div className="container mx-auto px-6 py-8">
         {/* Search and Filters */}
@@ -278,7 +196,7 @@ const Dashboard: React.FC = () => {
         <div className='px-2'>{loadingProducts ? "Loading Products..." : products.length === 0 ? "No Products found!" : ""}</div>
 
         {/* Products Grid */}
-        <ProductGrid products={products} viewMode={viewMode} userId={userId}/>
+        <ProductGrid products={products} viewMode={viewMode} userId={userId} />
 
         {/*
         <div className="text-center mt-12">

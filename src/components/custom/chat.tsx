@@ -2,7 +2,7 @@
 "use client";
 import * as React from 'react'
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Search, Send, Phone, Video, MoreVertical, Paperclip, Smile, Package } from 'lucide-react';
+import { ArrowLeft, Search, Send, Phone, Video, MoreVertical, Paperclip, Smile, Package, MessageCircleDashed } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
@@ -10,7 +10,14 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import Pusher from 'pusher-js';
-
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 interface Message {
     id: string;
     content: string;
@@ -441,9 +448,9 @@ function Chat() {
                                             alt={currentChat.senderId == userId ? currentChat.receiver.name : currentChat.sender.name}
                                             className="w-12 h-12 rounded-full object-cover"
                                         />
-                                        {/* {currentChat.isOnline && (
-                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
-                                        )} */}
+                                        {isOnline && (
+                                            <div className="absolute -bottom-1 -right-1 size-4 bg-green-500 rounded-full border-2 border-black"></div>
+                                        )}
                                     </div>
 
                                     <div>
@@ -475,6 +482,7 @@ function Chat() {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {messages.length==0 && <EmptyMessage/>}
                             {messages.map((message) => (
                                 <div
                                     key={message.id}
@@ -553,5 +561,28 @@ function Chat() {
         </div>
     );
 };
+
+function EmptyMessage() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon" className='bg-black'>
+          <MessageCircleDashed className='text-white'/>
+        </EmptyMedia>
+        <EmptyTitle>No Messages Yet</EmptyTitle>
+        <EmptyDescription>
+          You haven&apos;t had any conversation yet. <br/>Get started by sending
+          your first message.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <div className="flex gap-2">
+          
+        </div>
+      </EmptyContent>
+      
+    </Empty>
+  )
+}
 
 export default Chat;

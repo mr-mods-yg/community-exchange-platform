@@ -25,6 +25,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
                         name: true,
                         image: true
                     }
+                },
+                images: true, 
+                location: {
+                    select: {
+                        city: true,
+                        state: true,
+                        state_district: true,
+                        postcode: true
+                    }
                 }
             }
         })

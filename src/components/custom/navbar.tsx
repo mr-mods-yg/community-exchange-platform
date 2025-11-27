@@ -14,7 +14,7 @@ import {
     MenubarSeparator,
 } from '@/components/ui/menubar'
 
-function Navbar() {
+function Navbar({isAdmin}: {isAdmin?: boolean}) {
     const { locationInfo } = useLocation();
     const session = useSession();
 
@@ -27,14 +27,17 @@ function Navbar() {
                         <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
                             TradeHub
                         </span>
+                        {isAdmin && <span className="text-2xl font-bold text-red-500 bg-clip-text">
+                            Admin
+                        </span>}
                     </div>
                     <div className="flex items-center space-x-4">
-                        <div className='hidden md:block'>
+                        {!isAdmin ? <div className='hidden md:block'>
                             <div className="flex items-center space-x-2 text-gray-300">
                                 <MapPin className="h-5 w-5 text-emerald-400" />
                                 {locationInfo ? <span>{locationInfo?.city}, {locationInfo?.state}</span> : <span>Fetching Location</span>}
                             </div>
-                        </div>
+                        </div> : <></>}
 
                         <Link
                             href={"/product/upload"}

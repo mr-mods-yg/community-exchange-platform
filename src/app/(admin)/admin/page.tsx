@@ -5,6 +5,8 @@ import axios from 'axios';
 import { LocationInfo, User } from '@/generated/prisma';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import SpinnerLoading from '@/components/custom/spinner-loading';
+import Navbar from '@/components/custom/navbar';
 
 interface Image {
     id: string;
@@ -53,9 +55,9 @@ const Dashboard: React.FC = () => {
 
 
     if (hasCheckedAdmin && !isAdmin) {
-        return <div>You do not have the required permission</div>
+        return <div className="min-h-screen bg-black text-white">You do not have the required permission</div>
     } else if (!isAdmin) {
-        return <div>Checking your account..</div>
+        return <div className="min-h-screen bg-black text-white"><SpinnerLoading text='Checking your account'/></div>
     }
     const updateStatus = async (status: string, productId: string) => {
         const res = await axios.post("/api/admin/product/update/" + productId, {
@@ -70,26 +72,7 @@ const Dashboard: React.FC = () => {
     return (
         <div className="min-h-screen bg-black text-white">
             {/* Header */}
-            <header className="bg-black/95 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
-                <div className="container mx-auto px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            <Package className="h-8 w-8 text-emerald-400" />
-                            <Link href={"/dashboard"}>
-                                <span className="flex gap-2 text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                                    TradeHub <p className='text-red-500'>Admin</p>
-                                </span>
-                            </Link>
-
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center">
-                                <span className="text-sm font-medium">JD</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Navbar isAdmin={true}/>
 
             <div className="container mx-auto px-6 py-8">
                 {/* Search and Filters */}

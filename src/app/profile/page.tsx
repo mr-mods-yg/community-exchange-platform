@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { User, MapPin, Calendar, Package, Edit, Trash, GlobeLock } from "lucide-react";
+import { User, Calendar, Package, Edit, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import SpinnerLoading from "@/components/custom/spinner-loading";
@@ -9,7 +9,6 @@ import Link from "next/link";
 
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,

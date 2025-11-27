@@ -332,7 +332,7 @@ function Chat() {
     // );
 
     return (
-        <div className="min-h-screen bg-black text-white flex">
+        <div className="min-h-[100dvh] bg-black text-white flex">
             {/* Sidebar - Chat List */}
             <div className={`${currentChat && "hidden"} w-full md:w-80 bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm border-r border-gray-800/50 md:flex flex-col`}>
                 {/* Header */}

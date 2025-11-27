@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { MapPin, Search, Package, Grid3x3 as Grid3X3, List, SlidersHorizontal } from 'lucide-react';
+import { MapPin, Search, Grid3x3 as Grid3X3, List, SlidersHorizontal } from 'lucide-react';
 import axios from 'axios';
 import { LocationInfo, User } from '@/generated/prisma';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 import SpinnerLoading from '@/components/custom/spinner-loading';
 import Navbar from '@/components/custom/navbar';

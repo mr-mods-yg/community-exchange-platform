@@ -44,9 +44,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ productI
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { productId: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ productId: string }> }) {
   const session = await getServerSession(authOptions);
-  const productId = params.productId;
+  const productId = (await params).productId;
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });

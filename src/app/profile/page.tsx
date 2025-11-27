@@ -163,11 +163,11 @@ export default function ProfilePage() {
                             </span>
                         </div>
                     </div>
-                    <div className="flex justify-center px-1 gap-1">
+                    <div className="flex justify-center px-1 gap-1 pb-2">
                         <Link className="size-fit" href={"/product/edit/" + product.id}>
                             <button
 
-                                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg`}
+                                className={`hover:scale-105 px-6 py-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg`}
                             >
                                 <Edit />
                             </button>
@@ -189,7 +189,7 @@ function DeleteDialog({ productId, refreshProfile }: { productId: string, refres
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
                 <button
-                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg`}
+                    className={`hover:scale-105 px-6 py-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg`}
                 >
                     <Trash />
                 </button>

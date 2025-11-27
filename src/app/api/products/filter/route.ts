@@ -15,9 +15,12 @@ export async function GET(req: Request) {
     const city = searchParams.get("city");
     const state_district = searchParams.get("state_district");
     const state = searchParams.get("state");
+    const query = searchParams.get("q");
 
     const filters = [];
-
+    const nameFilter = query
+        ? { contains: query, mode: Prisma.QueryMode.insensitive }
+        : undefined;
     if (city) filters.push({ city: { contains: city, mode: Prisma.QueryMode.insensitive } });
     if (state) filters.push({ state: { contains: state, mode: Prisma.QueryMode.insensitive } });
     if (state_district) filters.push({ state_district: { contains: state_district, mode: Prisma.QueryMode.insensitive } });
@@ -25,6 +28,7 @@ export async function GET(req: Request) {
     const products = await prisma.product.findMany({
         where: {
             status: "allowed",
+            ...(nameFilter && {name: nameFilter}),
             location: {
                 OR: filters
             }

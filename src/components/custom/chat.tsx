@@ -188,120 +188,7 @@ function Chat() {
             };
         }
     }, [selectedChat, userId]);
-    // Sample chat data
-    // const conversations: ChatConversation[] = [
-    //     {
-    //         id: '1',
-    //         sellerName: 'Sarah M.',
-    //         sellerAvatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         productName: 'Vintage Leather Jacket',
-    //         productImage: 'https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         lastMessage: 'Yes, it\'s still available! When would you like to meet?',
-    //         lastMessageTime: '2:30 PM',
-    //         unreadCount: 2,
-    //         isOnline: true,
-    //         messages: [
-    //             {
-    //                 id: '1',
-    //                 text: 'Hi! I\'m interested in the vintage leather jacket. Is it still available?',
-    //                 timestamp: '2:15 PM',
-    //                 sender: 'user',
-    //                 status: 'read'
-    //             },
-    //             {
-    //                 id: '2',
-    //                 text: 'Hello! Yes, it\'s still available. It\'s in excellent condition, barely worn.',
-    //                 timestamp: '2:20 PM',
-    //                 sender: 'seller'
-    //             },
-    //             {
-    //                 id: '3',
-    //                 text: 'That sounds great! Can you tell me more about the size and fit?',
-    //                 timestamp: '2:25 PM',
-    //                 sender: 'user',
-    //                 status: 'read'
-    //             },
-    //             {
-    //                 id: '4',
-    //                 text: 'It\'s a size Medium, fits true to size. I can send you more detailed photos if you\'d like.',
-    //                 timestamp: '2:28 PM',
-    //                 sender: 'seller'
-    //             },
-    //             {
-    //                 id: '5',
-    //                 text: 'Yes, it\'s still available! When would you like to meet?',
-    //                 timestamp: '2:30 PM',
-    //                 sender: 'seller'
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         id: '2',
-    //         sellerName: 'Mike R.',
-    //         sellerAvatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         productName: 'MacBook Pro 2019',
-    //         productImage: 'https://images.pexels.com/photos/205421/pexels-photo-205421.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         lastMessage: 'Sure, I can meet tomorrow at 3 PM',
-    //         lastMessageTime: '1:45 PM',
-    //         unreadCount: 0,
-    //         isOnline: false,
-    //         messages: [
-    //             {
-    //                 id: '1',
-    //                 text: 'Hi! Is the MacBook still available?',
-    //                 timestamp: '1:30 PM',
-    //                 sender: 'user',
-    //                 status: 'read'
-    //             },
-    //             {
-    //                 id: '2',
-    //                 text: 'Yes it is! It\'s in great condition, comes with the original charger.',
-    //                 timestamp: '1:35 PM',
-    //                 sender: 'seller'
-    //             },
-    //             {
-    //                 id: '3',
-    //                 text: 'Perfect! Can we meet somewhere public to check it out?',
-    //                 timestamp: '1:40 PM',
-    //                 sender: 'user',
-    //                 status: 'read'
-    //             },
-    //             {
-    //                 id: '4',
-    //                 text: 'Sure, I can meet tomorrow at 3 PM',
-    //                 timestamp: '1:45 PM',
-    //                 sender: 'seller'
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         id: '3',
-    //         sellerName: 'Alex K.',
-    //         sellerAvatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         productName: 'Acoustic Guitar',
-    //         productImage: 'https://images.pexels.com/photos/1407322/pexels-photo-1407322.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         lastMessage: 'Thanks for your interest!',
-    //         lastMessageTime: '12:20 PM',
-    //         unreadCount: 1,
-    //         isOnline: true,
-    //         messages: [
-    //             {
-    //                 id: '1',
-    //                 text: 'Hello! I saw your acoustic guitar listing. Does it come with a case?',
-    //                 timestamp: '12:15 PM',
-    //                 sender: 'user',
-    //                 status: 'read'
-    //             },
-    //             {
-    //                 id: '2',
-    //                 text: 'Thanks for your interest!',
-    //                 timestamp: '12:20 PM',
-    //                 sender: 'seller'
-    //             }
-    //         ]
-    //     }
-    // ];
-
+    
     const currentChat = conversations.find(chat => chat.id == selectedChat);
 
     const handleSendMessage = async () => {
@@ -394,7 +281,7 @@ function Chat() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h3 className="font-semibold text-white truncate">{chat.senderId == userId ? chat.receiver.name : chat.sender.name}</h3>
-                                        {messages.length > 0 ?
+                                        {messages.length > 0 && selectedChat == chat.id ?
                                             <span className="text-xs text-gray-400">
                                                 {format(new Date(messages[messages.length - 1].createdAt), 'dd MMM yyyy, hh:mm a')}
                                             </span> :
@@ -414,10 +301,14 @@ function Chat() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        {messages.length > 0 ?
-                                            <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p>
+                                        {chat.messages.length > 0 && selectedChat != chat.id ?
+                                            chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>
                                             :
-                                            chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>}
+                                            messages.length > 0 ?
+                                                <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p>
+                                                :
+                                                <p></p>
+                                        }
                                         {/* <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                                             Unread
                                         </span> */}

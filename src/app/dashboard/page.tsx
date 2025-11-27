@@ -37,6 +37,7 @@ const Dashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [locationFilter, setLocationFilter] = useState<'city' | 'state_district' | 'state'>('city');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchDebouncedQuery, setSearchDebouncedQuery] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
 
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -64,7 +65,7 @@ const Dashboard: React.FC = () => {
   }, [location, locationInfo, setLocation]);
 
   useEffect(() => {
-    if(locationInfo){
+    if (locationInfo) {
       return;
     }
     if (location) {
@@ -73,30 +74,38 @@ const Dashboard: React.FC = () => {
           setLocationInfo(res.data.address);
         })
     }
-  }, [location,locationInfo, setLocationInfo]);
+  }, [location, locationInfo, setLocationInfo]);
 
   useEffect(() => {
     if (!locationInfo) return;
     setLoadingProducts(true);
     console.log("loading start");
-    if (locationFilter == "city") {
-      axios.get("/api/products/filter?city=" + locationInfo.city).then((res) => setProducts(res.data))
-    }
-    else if (locationFilter == "state_district") {
-      axios.get("/api/products/filter?state_district=" + locationInfo.state_district).then((res) => setProducts(res.data))
-    }
-    if (locationFilter == "state") {
-      axios.get("/api/products/filter?state=" + locationInfo.state).then((res) => setProducts(res.data))
-    }
-
+    axios.get(`/api/products/filter`,
+      {
+        params: {
+          ...(searchDebouncedQuery != '' && { q: searchDebouncedQuery }),
+          ...(locationFilter == "city" && { city: locationInfo.city }),
+          ...(locationFilter == "state_district" && { state_district: locationInfo.state_district }),
+          ...(locationFilter == "state" && { state: locationInfo.state })
+        }
+      }
+    ).then((res) => setProducts(res.data))
     setLoadingProducts(false);
 
-  }, [locationInfo, locationFilter])
+  }, [locationInfo, locationFilter, searchDebouncedQuery])
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setSearchDebouncedQuery(searchQuery);
+    }, 800); // 800ms debouncing
+
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <Navbar/>
+      <Navbar />
 
       <div className="container mx-auto px-6 py-8">
         {/* Search and Filters */}

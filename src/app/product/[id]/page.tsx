@@ -7,16 +7,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
-
-import { Spinner } from "@/components/ui/spinner"
+import SpinnerLoading from "@/components/custom/spinner-loading";
 interface Image {
     id: string;
     url: string;
@@ -202,20 +193,4 @@ export default function ProductPage() {
                 </div> */}
         </div>
     );
-}
-
-function SpinnerLoading() {
-  return (
-    <Empty className="w-full">
-      <EmptyHeader>
-        <EmptyMedia variant="icon" className="bg-black">
-          <Spinner className="text-white"/>
-        </EmptyMedia>
-        <EmptyTitle>Loading page</EmptyTitle>
-        <EmptyDescription>
-          Please wait while we process your request. Do not refresh the page.
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  )
 }

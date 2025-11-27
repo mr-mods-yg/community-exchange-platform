@@ -71,6 +71,12 @@ function Navbar() {
                                     {session && session.status === "authenticated" ? (
                                         <>
                                             <MenubarItem asChild>
+                                                <Link className={"size-full"} href={"/profile"}>
+                                                    <UserRound />
+                                                    My Profile
+                                                </Link>
+                                            </MenubarItem>
+                                            <MenubarItem asChild>
                                                 <Link className={"size-full"} href={"/chat"}>
                                                     <MessageCircleIcon />
                                                     My Chats

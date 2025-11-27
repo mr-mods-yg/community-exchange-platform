@@ -1,5 +1,5 @@
 
-import { IndianRupee, MapPin, User as UserImage } from "lucide-react";
+import { MapPin, User as UserImage } from "lucide-react";
 import Link from "next/link";
 import { LocationInfo } from '@/types/locationInfo';
 import { User } from '@/generated/prisma';

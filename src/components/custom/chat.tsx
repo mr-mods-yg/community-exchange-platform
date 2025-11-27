@@ -2,7 +2,7 @@
 "use client";
 import * as React from 'react'
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Search, Send, Phone, Video, MoreVertical, Paperclip, Smile, Package, MessageCircleDashed } from 'lucide-react';
+import { ArrowLeft, Search, Send, MoreVertical, Smile, Package, MessageCircleDashed } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
@@ -122,7 +122,7 @@ function Chat() {
                 setProductInfo(res.data.product);
             })
         }
-    }, [])
+    }, [productId])
 
     useEffect(() => {
         if (productInfo) {

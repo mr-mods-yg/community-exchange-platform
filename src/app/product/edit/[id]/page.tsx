@@ -179,6 +179,7 @@ export default function EditProductPage() {
                 {images.map((image, i) => (
                   <img
                     key={i}
+                    alt={formData.name+" image"}
                     src={image}
                     className="w-full h-24 object-cover rounded-xl border border-gray-800"
                   />

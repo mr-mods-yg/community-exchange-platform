@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Upload, MapPin, Package, Tag, Camera, X, IndianRupee } from 'lucide-react';
-import { LocationInfo } from '@/types/locationInfo';
 import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
 import toast from 'react-hot-toast';

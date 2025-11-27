@@ -51,6 +51,7 @@ const UploadProduct: React.FC = () => {
 
   useEffect(() => {
     if (location) {
+      setFormData((prev) => ({ ...prev, locationCoords: location.lat + ";" + location.lon }))
       return;
     }
     if ("geolocation" in navigator) {
@@ -60,6 +61,7 @@ const UploadProduct: React.FC = () => {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
           });
+          setFormData((prev) => ({ ...prev, locationCoords: pos.coords.latitude + ";" + pos.coords.longitude }))
         },
         (err) => {
           alert("⚠️ Please allow location access to see products near you.");

@@ -142,7 +142,6 @@ function Chat() {
     useEffect(() => {
         if (selectedChat) {
             // fetch existing messages
-            setMessages([]);
             axios.get("/api/conversation/message/" + selectedChat).then((res) => {
                 if (res.data.success) {
                     setMessages(res.data.messages);
@@ -188,7 +187,7 @@ function Chat() {
             };
         }
     }, [selectedChat, userId]);
-    
+
     const currentChat = conversations.find(chat => chat.id == selectedChat);
 
     const handleSendMessage = async () => {
@@ -262,7 +261,7 @@ function Chat() {
                     {filteredConversations.map((chat) => (
                         <div
                             key={chat.id}
-                            onClick={() => setSelectedChat(chat.id)}
+                            onClick={() => {setMessages([]);setSelectedChat(chat.id)}}
                             className={`p-4 border-b border-gray-800/30 cursor-pointer transition-all hover:bg-gray-800/30 ${selectedChat === chat.id ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-r-2 border-r-emerald-400' : ''
                                 }`}
                         >
@@ -301,13 +300,16 @@ function Chat() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        {chat.messages.length > 0 && selectedChat != chat.id ?
-                                            chat.messages[0] && <p className="text-sm text-gray-300 truncate">{chat.messages[0].content}</p>
+                                        {selectedChat == chat.id ?
+                                            messages.length > 0 &&
+                                            <p className="text-sm text-gray-300 truncate">
+                                                {messages[messages.length - 1].content}
+                                            </p>
                                             :
-                                            messages.length > 0 ?
-                                                <p className="text-sm text-gray-300 truncate">{messages[messages.length - 1].content}</p>
-                                                :
-                                                <p></p>
+                                            chat.messages.length > 0 && chat.messages[0] &&
+                                            <p className="text-sm text-gray-300 truncate">
+                                                {chat.messages[0].content}
+                                            </p>
                                         }
                                         {/* <span className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                                             Unread
